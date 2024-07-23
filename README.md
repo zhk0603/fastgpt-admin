@@ -14,7 +14,7 @@
 ## 部署
 
 1. Docker 构建镜像
-   1. 运行 make build
+   1. docker build -t hub.topevery.com/library/fastgpt/fastgpt-admin:latest .
    2. 运行 `docker-compose up -d`
 
 

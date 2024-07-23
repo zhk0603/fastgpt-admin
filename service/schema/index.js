@@ -32,7 +32,7 @@ mongoose
 // 表结构
 export const App = mongoose.models['apps'] || mongoose.model('apps', appSchema);
 export const DataSet = mongoose.models['dataset'] || mongoose.model('dataset', datasetSchema);
-export const User = mongoose.models['user'] || mongoose.model('user', UserSchema);
+export const User = mongoose.models['users'] || mongoose.model('users', UserSchema);
 export const Pay = mongoose.models['pay'] || mongoose.model('pay', paySchema);
 export const System = mongoose.models['system'] || mongoose.model('system', SystemSchema);
 export const Team = mongoose.models['teams'] || mongoose.model('teams', TeamSchema);

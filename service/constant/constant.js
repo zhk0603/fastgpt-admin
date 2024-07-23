@@ -53,7 +53,19 @@ export const TeamMemberStatusMap = {
 
 export const notLeaveStatus = { $ne: TeamMemberStatusEnum.leave };
 
+export const UserStatusEnum = {
+  active: 'active',
+  forbidden: 'forbidden'
+}
 
+export const userStatusMap = {
+  [UserStatusEnum.active]: {
+    label: 'support.user.status.active'
+  },
+  [UserStatusEnum.forbidden]: {
+    label: 'support.user.status.forbidden'
+  }
+};
 
 // 定义应用类型映射
 export const AppTypeEnum = {

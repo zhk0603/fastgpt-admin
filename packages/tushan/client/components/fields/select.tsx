@@ -3,7 +3,7 @@ import React from 'react';
 import { createFieldFactory } from './factory';
 import type { FieldDetailComponent, FieldEditComponent } from './types';
 
-export type SelectFieldOptionValueType = string | number;
+export type SelectFieldOptionValueType = string | number | boolean;
 
 export interface SelectFieldOptionItem {
   value: SelectFieldOptionValueType;

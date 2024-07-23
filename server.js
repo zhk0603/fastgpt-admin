@@ -4,6 +4,8 @@ import {useUserRoute} from './service/route/user.js';
 import {useAppRoute} from './service/route/app.js';
 import {useKbRoute} from './service/route/kb.js';
 import {useSystemRoute} from './service/route/system.js';
+import {useTeamRoute} from './service/route/team.js';
+import {useTeamMemberRoute} from './service/route/teamMember.js';
 import {useDashboardRoute} from "./service/route/dashboard.js";
 import {logMiddleware} from "./service/middleware/common.js";
 
@@ -18,6 +20,8 @@ useAppRoute(app);
 useKbRoute(app);
 useSystemRoute(app);
 useDashboardRoute(app);
+useTeamRoute(app);
+useTeamMemberRoute(app);
 
 app.get('/*', (req, res) => {
   try {

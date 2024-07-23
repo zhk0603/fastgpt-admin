@@ -1,0 +1,5 @@
+{
+  "i18n-ally.localesPaths": [
+    "packages/tushan/client/i18n"
+  ]
+}
