@@ -4,6 +4,7 @@ import type { ComponentType } from 'react';
 export interface BasicFieldEditOptions {
   placeholder?: string;
   hidden?: boolean;
+  disabled?: boolean;
   rules?: RulesProps<any>[];
   /**
    * default value on create.

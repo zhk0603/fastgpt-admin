@@ -7,6 +7,7 @@ import {paySchema} from "./paySchema.js";
 import {SystemSchema} from "./systemSchema.js";
 import {TeamMemberSchema} from "./teamMemberSchema.js";
 import {TeamSchema} from "./teamSchema.js";
+import { ResourcePermissionSchema } from './resourcePermissionSchema.js';
 
 dotenv.config({path: '.env.local'});
 
@@ -37,3 +38,4 @@ export const Pay = mongoose.models['pay'] || mongoose.model('pay', paySchema);
 export const System = mongoose.models['system'] || mongoose.model('system', SystemSchema);
 export const Team = mongoose.models['teams'] || mongoose.model('teams', TeamSchema);
 export const TeamMember = mongoose.models['team_members'] || mongoose.model('team_members', TeamMemberSchema);
+export const ResourcePermission = mongoose.models['resource_permissions'] || mongoose.model('resource_permissions', ResourcePermissionSchema);

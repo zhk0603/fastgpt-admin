@@ -11,8 +11,7 @@ RUN npm config set registry https://registry.npmmirror.com/ && \
 WORKDIR /app
 
 # 设置环境变量
-ENV NEXT_TELEMETRY_DISABLED=1 \
-    VITE_PUBLIC_SERVER_URL=""
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # 复制项目文件到容器
 COPY . .

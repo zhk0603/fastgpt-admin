@@ -1,9 +1,10 @@
-import { Select, Tag } from '@arco-design/web-react';
-import React from 'react';
-import { createFieldFactory } from './factory';
-import type { FieldDetailComponent, FieldEditComponent } from './types';
+import { Select, Tag } from "@arco-design/web-react";
+import React from "react";
+import { createFieldFactory } from "./factory";
+import type { FieldDetailComponent, FieldEditComponent } from "./types";
+import { useViewTypeContext } from "../../context/viewtype";
 
-export type SelectFieldOptionValueType = string | number | boolean;
+export type SelectFieldOptionValueType = any; // string | number;
 
 export interface SelectFieldOptionItem {
   value: SelectFieldOptionValueType;
@@ -42,18 +43,24 @@ export const SelectFieldDetail: FieldDetailComponent<
     return <Tag>{props.value}</Tag>;
   }
 });
-SelectFieldDetail.displayName = 'SelectFieldDetail';
+SelectFieldDetail.displayName = "SelectFieldDetail";
 
 export const SelectFieldEdit: FieldEditComponent<
   SelectFieldOptionValueType,
   SelectFieldOptions
 > = React.memo((props) => {
   const items = props.options.items ?? [];
+  const viewType = useViewTypeContext();
+  const disabled =
+    (viewType === "create"
+      ? props.options.create?.disabled
+      : props.options.edit?.disabled) ?? false;
 
   return (
     <Select
       placeholder={props.options.edit?.placeholder ?? props.options.label}
       value={props.value}
+      disabled={disabled}
       onChange={(val) => props.onChange(val)}
     >
       {items.map((item) => (
@@ -64,7 +71,7 @@ export const SelectFieldEdit: FieldEditComponent<
     </Select>
   );
 });
-SelectFieldEdit.displayName = 'SelectFieldEdit';
+SelectFieldEdit.displayName = "SelectFieldEdit";
 
 /**
  * @example

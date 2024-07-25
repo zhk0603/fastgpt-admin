@@ -1,5 +1,10 @@
 import { Team, TeamMember } from "../schema/index.js";
 import { auth } from "./system.js";
+import {
+  updateResourcePer,
+  getPerValue,
+} from "../utils/resourcePermissionUtils.js";
+import { PerResourceTypeEnum } from "../constant/constant.js";
 
 export const useTeamMemberRoute = (app) => {
   // 列表
@@ -59,7 +64,7 @@ export const useTeamMemberRoute = (app) => {
   });
   // 创建
   app.post("/team-member", auth(), async (req, res) => {
-    const { teamId, userId, role, defaultTeam } = req.body;
+    const { teamId, userId, name, role, defaultTeam } = req.body;
 
     // 是否已经已加入团队
     const exists = await TeamMember.exists({
@@ -82,34 +87,48 @@ export const useTeamMemberRoute = (app) => {
       }
     }
 
-    const newTm = await TeamMember.create({
+    const newTmb = await TeamMember.create({
       teamId,
       userId,
-      name: role == "owner" ? "Owner" : "Member",
+      name: name ?? role == "owner" ? "Owner" : "Member",
       role,
       defaultTeam,
       status: "active",
     });
 
+    await updateResourcePer({
+      teamId: teamId,
+      tmbId: newTmb._id,
+      resourceType: PerResourceTypeEnum.team,
+      permission: getPerValue(role),
+    });
+
     res.status(200).json({
-      teamMember: newTm,
+      teamMember: newTmb,
     });
   });
   // 更新
   app.put("/team-member/:id", auth(), async (req, res) => {
     const _id = req.params.id;
-    const { role, defaultTeam, status } = req.body;
+    const { name, role, defaultTeam, status } = req.body;
 
     const result = await TeamMember.findByIdAndUpdate(
       _id,
       {
-        name: role == "owner" ? "Owner" : "Member",
+        name,
         role,
         defaultTeam,
         status,
       },
       { new: true }
     );
+
+    await updateResourcePer({
+      teamId: result.teamId,
+      tmbId: result._id,
+      resourceType: PerResourceTypeEnum.team,
+      permission: getPerValue(role),
+    });
 
     res.status(200).json(result);
   });
@@ -128,7 +147,7 @@ export const useTeamMemberRoute = (app) => {
 
       var obj = team.toObject();
 
-      res.json({ ...obj, id: obj._id });
+      res.json({ ...obj, id: obj._id, username: team.userId.username });
     } catch (error) {
       console.error("get ", error);
       res.status(500).send("内部服务器错误");

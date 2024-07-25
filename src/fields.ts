@@ -4,22 +4,24 @@ import {
   createSelectField,
   createReferenceField,
 } from "tushan";
+const OwnerPermissionVal = ~0 >>> 0;
 
 export const userFields = [
   createTextField("id", { label: "ID" }),
   createTextField("username", {
     label: "用户名",
+    create: {
+      disabled: false,
+    },
     edit: {
       rules: [{ required: true }],
+      disabled: true,
     },
   }),
   createReferenceField("defaultTeamId", {
     label: "默认团队",
     reference: "teams",
     displayField: "name",
-    edit: {
-      rules: [{ required: true }],
-    },
   }),
   // createNumberField('balance', { label: '余额（元）', list: { sort: true } }),
   createTextField("createTime", {
@@ -92,7 +94,12 @@ export const payFields = [
 
 export const kbFields = [
   createTextField("id", { label: "ID" }),
-  createTextField("userId", { label: "所属用户", edit: { hidden: true } }),
+  createReferenceField("userId", {
+    label: "所属用户",
+    reference: "team-member",
+    displayField: "username",
+    edit: { hidden: true },
+  }),
   createTextField("name", { label: "知识库" }),
   createTextField("tags", { label: "Tags" }),
 ];
@@ -144,11 +151,29 @@ export const teamFields = [
       rules: [{ required: true }],
     },
   }),
-  createTextField("defaultPermission", {
+  createSelectField("defaultPermission", {
     label: "默认权限",
     edit: {
       rules: [{ required: true }],
     },
+    items: [
+      {
+        value: 0b100,
+        label: "读权限",
+      },
+      {
+        value: 0b110,
+        label: "写权限",
+      },
+      {
+        value: 0b111,
+        label: "管理员",
+      },
+      {
+        value: OwnerPermissionVal,
+        label: "所有者",
+      },
+    ],
   }),
 ];
 
@@ -160,8 +185,12 @@ export const teamMemberFields = [
     displayField: "username",
     list: { hidden: true },
     detail: { hidden: true },
-    edit: {
+    create: {
+      disabled: false,
       rules: [{ required: true }],
+    },
+    edit: {
+      disabled: true,
     },
   }),
   createTextField("username", {
@@ -176,14 +205,27 @@ export const teamMemberFields = [
     displayField: "name",
     list: { hidden: true },
     detail: { hidden: true },
-    edit: {
+    create: {
+      disabled: false,
       rules: [{ required: true }],
+    },
+    edit: {
+      disabled: true,
     },
   }),
   createTextField("teamName", {
     label: "团队",
     edit: {
       hidden: true,
+    },
+  }),
+  createTextField("name", {
+    label: "昵称",
+    create: {
+      rules: [{ required: false }],
+    },
+    edit: {
+      rules: [{ required: true }],
     },
   }),
   createSelectField("role", {

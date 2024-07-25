@@ -76,6 +76,23 @@ export const useTeamRoute = (app) => {
       teamMember: newTeamMember,
     });
   });
+  // 更新
+  app.put("/teams/:teamId", auth(), async (req, res) => {
+    const _id = req.params.teamId;
+    const { name, defaultPermission, ownerId } = req.body;
+
+    const result = await Team.findByIdAndUpdate(
+      _id,
+      {
+        name,
+        defaultPermission,
+        ownerId,
+      },
+      { new: true }
+    );
+
+    res.status(200).json(result);
+  });
   // 详情
   app.get("/teams/:teamId", auth(), async (req, res) => {
     const teamId = req.params.teamId;

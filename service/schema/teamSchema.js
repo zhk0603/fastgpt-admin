@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import {userCollectionName} from "./userSchema.js";
 import {FullPermission} from "../constant/permisson.js";
 
+export const TeamCollectionName = 'teams';
+
 export const TeamSchema = new mongoose.Schema({
   name: {
     type: String,

@@ -1,9 +1,19 @@
-import { Pay, Team, TeamMember, User } from "../schema/index.js";
+import {
+  Pay,
+  ResourcePermission,
+  Team,
+  TeamMember,
+  User,
+} from "../schema/index.js";
 import dayjs from "dayjs";
 import { auth } from "./system.js";
 import crypto from "crypto";
 import { validateUserCreation } from "../middleware/common.js";
-import { FullPermission } from "../constant/permisson.js";
+import { updateResourcePer } from "../utils/resourcePermissionUtils.js";
+import {
+  PerResourceTypeEnum,
+  ReadPermissionVal,
+} from "../constant/constant.js";
 
 export const PRICE_SCALE = 100000;
 
@@ -150,22 +160,32 @@ export const useUserRoute = (app) => {
       });
 
       console.log("新用户ID:", newUser._id);
-      // 查询默认团队
-      const defaultTeam = await Team.findOne({ _id: defaultTeamId });
 
-      // 将新用户添加到默认团队
-      const newTeamMember = await TeamMember.create({
-        teamId: defaultTeam._id,
-        userId: newUser._id,
-        name: "Member",
-        role: "visitor",
-        status: "active",
-        defaultTeam: true,
-      });
+      var newTeamMember = null;
+      if (defaultTeamId) {
+        // 查询默认团队
+        const defaultTeam = await Team.findOne({ _id: defaultTeamId });
+
+        // 将新用户添加到默认团队
+        newTeamMember = await TeamMember.create({
+          teamId: defaultTeam._id,
+          userId: newUser._id,
+          name: "Member",
+          role: "visitor",
+          status: "active",
+          defaultTeam: true,
+        });
+
+        await updateResourcePer({
+          teamId: defaultTeamId,
+          tmbId: newTeamMember._id,
+          resourceType: PerResourceTypeEnum.team,
+          permission: ReadPermissionVal,
+        });
+      }
 
       res.status(200).json({
         user: newUser,
-        // team: newTeam,
         teamMember: newTeamMember,
       });
     } catch (err) {
@@ -211,6 +231,17 @@ export const useUserRoute = (app) => {
       }
 
       // 删除与用户相关联的团队成员信息
+      const tmbsRaw = await TeamMember.find({
+        userId,
+      });
+      for (var i in tmbsRaw) {
+        const tmb = tmbsRaw[i].toObject();
+        await ResourcePermission.deleteMany({
+          teamId: tmb.teamId,
+          tmbId: tmb._id,
+        });
+      }
+
       const teamDeleteResult = await TeamMember.deleteMany({ userId });
       if (teamDeleteResult.deletedCount === 0) {
         console.log(`没有找到或删除任何与用户ID ${userId} 关联的团队成员`);
@@ -225,7 +256,6 @@ export const useUserRoute = (app) => {
       res.status(500).send("内部服务器错误");
     }
   });
-
   // 修改用户信息
   app.put("/users/:id", auth(), async (req, res) => {
     try {
@@ -253,19 +283,57 @@ export const useUserRoute = (app) => {
       if (defaultTeam) {
         var obj = defaultTeam.toObject();
         if (obj._id !== defaultTeamId) {
+          // 删除 tm
           await TeamMember.findByIdAndDelete(obj._id);
+          // 删除 rp
+          await ResourcePermission.deleteMany({
+            teamId: defaultTeam.teamId,
+            tmbId: obj._id,
+            resourceType: PerResourceTypeEnum.team,
+          });
 
           // 插入新默认团队
-          await TeamMember.create({
+          defaultTeam = await TeamMember.create({
             teamId: defaultTeamId,
             userId: _id,
-            role: "admin",
+            name: "Member",
+            role: "visitor",
             status: "active",
             defaultTeam: true,
           });
+
+          await updateResourcePer({
+            teamId: defaultTeamId,
+            tmbId: defaultTeam._id,
+            resourceType: PerResourceTypeEnum.team,
+            permission: ReadPermissionVal,
+          });
         }
+      } else {
+        // 插入新默认团队
+        defaultTeam = await TeamMember.create({
+          teamId: defaultTeamId,
+          userId: _id,
+          name: "Member",
+          role: "visitor",
+          status: "active",
+          defaultTeam: true,
+        });
+
+        await updateResourcePer({
+          teamId: defaultTeamId,
+          tmbId: defaultTeam._id,
+          resourceType: PerResourceTypeEnum.team,
+          permission: ReadPermissionVal,
+        });
       }
-      await res.json(result);
+
+      await res.json({
+        ...result,
+        createTime: dayjs(result.createTime).format("YYYY/MM/DD HH:mm"),
+        password: "",
+        defaultTeamId: defaultTeam?.teamId,
+      });
     } catch (err) {
       console.log(`Error updating user: ${err}`);
       res.status(500).json({ error: "Error updating user" });

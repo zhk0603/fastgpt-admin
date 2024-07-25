@@ -38,6 +38,7 @@ const httpClient: HTTPClient = (url, options = {}) => {
   }
 };
 
+console.log('VITE_PUBLIC_SERVER_URL', import.meta.env.VITE_PUBLIC_SERVER_URL)
 const dataProvider = jsonServerProvider(
   import.meta.env.VITE_PUBLIC_SERVER_URL,
   httpClient
@@ -54,9 +55,13 @@ const i18n: TushanContextProps["i18n"] = {
 };
 
 function App() {
+
+  const basename = import.meta.env.VITE_BASE_NAME || '/';
+  console.log(basename)
+
   return (
     <Tushan
-      basename="/"
+      basename={basename}
       header={"FastGPT-Admin"}
       i18n={i18n}
       dataProvider={dataProvider}
