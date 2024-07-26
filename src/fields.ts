@@ -22,6 +22,12 @@ export const userFields = [
     label: "默认团队",
     reference: "teams",
     displayField: "name",
+    create: {
+      rules: [{ required: false }],
+    },
+    edit: {
+      rules: [{ required: true }],
+    },
   }),
   // createNumberField('balance', { label: '余额（元）', list: { sort: true } }),
   createTextField("createTime", {
@@ -152,7 +158,7 @@ export const teamFields = [
     },
   }),
   createSelectField("defaultPermission", {
-    label: "默认权限",
+    label: "成员默认权限",
     edit: {
       rules: [{ required: true }],
     },
@@ -236,7 +242,7 @@ export const teamMemberFields = [
     items: [
       { value: "visitor", label: "访客" },
       { value: "admin", label: "管理员" },
-      { value: "owner", label: "创建者" },
+      { value: "owner", label: "创建者", disabled: true },
     ],
   }),
   createSelectField("status", {
@@ -248,6 +254,8 @@ export const teamMemberFields = [
     items: [
       { value: "active", label: "已加入" },
       { value: "leave", label: "离开" },
+      { value: "waiting", label: "待接受" },
+      { value: "reject", label: "拒绝" },
     ],
   }),
   createSelectField("defaultTeam", {

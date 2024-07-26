@@ -1,5 +1,10 @@
 import { ResourcePermission } from "../schema/index.js";
-import { TeamMemberRoleEnum, OwnerPermissionVal, ReadPermissionVal, ManagePermissionVal } from "../constant/constant.js";
+import {
+  TeamMemberRoleEnum,
+  OwnerPermissionVal,
+  ReadPermissionVal,
+  ManagePermissionVal,
+} from "../constant/constant.js";
 
 export const updateResourcePer = async function ({
   teamId,
@@ -38,6 +43,25 @@ export const updateResourcePer = async function ({
   }
 
   return rp;
+};
+
+export const removeResourcePer = async function ({
+  teamId,
+  tmbId,
+  resourceType,
+}) {
+  if (resourceType != null) {
+    await ResourcePermission.deleteMany({
+      teamId,
+      tmbId,
+      resourceType,
+    });
+  } else {
+    await ResourcePermission.deleteMany({
+      teamId,
+      tmbId,
+    });
+  }
 };
 
 export const getPerValue = function (teamRole) {

@@ -1,5 +1,14 @@
 import { Team, TeamMember } from "../schema/index.js";
 import { auth } from "./system.js";
+import {
+  TeamMemberRoleEnum,
+  PerResourceTypeEnum,
+} from "../constant/constant.js";
+import {
+  updateResourcePer,
+  removeResourcePer,
+  getPerValue,
+} from "../utils/resourcePermissionUtils.js";
 
 export const useTeamRoute = (app) => {
   // 列表
@@ -62,13 +71,19 @@ export const useTeamRoute = (app) => {
 
     console.log("新团队ID:", newTeam._id);
 
+    // 是否存在默认团队
+    var existsDefaultTeam = await TeamMember.exists({
+      defaultTeam: true,
+      userId: ownerId,
+    });
+
     const newTeamMember = await TeamMember.create({
       teamId: newTeam._id,
       userId: ownerId,
       name: "Owner",
       role: "owner",
       status: "active",
-      defaultTeam: false,
+      defaultTeam: !existsDefaultTeam,
     });
 
     res.status(200).json({
@@ -81,16 +96,74 @@ export const useTeamRoute = (app) => {
     const _id = req.params.teamId;
     const { name, defaultPermission, ownerId } = req.body;
 
-    const result = await Team.findByIdAndUpdate(
-      _id,
-      {
-        name,
-        defaultPermission,
-        ownerId,
-      },
-      { new: true }
-    );
+    const before = await Team.findByIdAndUpdate(_id, {
+      name,
+      defaultPermission,
+      ownerId,
+    });
 
+    // 修改了“所有者”
+    if (before.ownerId.toString() !== ownerId) {
+      // 将原来的所有者 修改为普通角色
+      const tmb = await TeamMember.findOneAndUpdate(
+        {
+          teamId: _id,
+          userId: before.ownerId,
+        },
+        {
+          role: TeamMemberRoleEnum.visitor,
+        }
+      );
+      // 插入 rp
+      await updateResourcePer({
+        teamId: _id,
+        tmbId: tmb._id,
+        resourceType: PerResourceTypeEnum.team,
+        permission: getPerValue(TeamMemberRoleEnum.visitor),
+      });
+
+      // 新 所有者
+
+      const exists = await TeamMember.exists({
+        teamId: _id,
+        userId: ownerId,
+      });
+      if (exists) {
+        const tmb = await TeamMember.findOneAndUpdate(
+          {
+            teamId: _id,
+            userId: ownerId,
+          },
+          {
+            role: TeamMemberRoleEnum.owner,
+          }
+        );
+
+        // 删除 rp
+        await removeResourcePer({
+          teamId: _id,
+          tmbId: tmb._id,
+          resourceType: PerResourceTypeEnum.team,
+        });
+      } else {
+        // 是否存在默认团队
+        var existsDefaultTeam = await TeamMember.exists({
+          defaultTeam: true,
+          userId: ownerId,
+        });
+
+        await TeamMember.create({
+          teamId: _id,
+          userId: ownerId,
+          name: "Owner",
+          role: "owner",
+          status: "active",
+          defaultTeam: !existsDefaultTeam,
+        });
+      }
+    }
+
+    const result = await Team.findById(before._id);
     res.status(200).json(result);
   });
   // 详情

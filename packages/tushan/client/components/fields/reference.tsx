@@ -64,7 +64,7 @@ export const ReferenceFieldEdit: FieldEditComponent<
   const { data = [] } = useGetList(reference, {
     pagination: {
       page: 1,
-      perPage: 10,
+      perPage: 999999,
     },
     filter: lazyFilter,
   });

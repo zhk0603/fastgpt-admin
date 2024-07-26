@@ -2,6 +2,7 @@ import { Team, TeamMember } from "../schema/index.js";
 import { auth } from "./system.js";
 import {
   updateResourcePer,
+  removeResourcePer,
   getPerValue,
 } from "../utils/resourcePermissionUtils.js";
 import { PerResourceTypeEnum } from "../constant/constant.js";
@@ -169,7 +170,13 @@ export const useTeamMemberRoute = (app) => {
         return res.status(500).json({ message: "不允许删除创建者" });
       }
 
-      await TeamMember.findByIdAndDelete(id);
+      const tmb = await TeamMember.findByIdAndDelete(id);
+
+      // 删除 rp
+      await removeResourcePer({
+        teamId: tmb.teamId,
+        tmbId: tmb._id,
+      });
 
       res.send("删除成功");
     } catch (error) {

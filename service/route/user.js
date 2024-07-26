@@ -282,7 +282,8 @@ export const useUserRoute = (app) => {
       });
       if (defaultTeam) {
         var obj = defaultTeam.toObject();
-        if (obj._id !== defaultTeamId) {
+        console.log(obj.teamId.toString(), defaultTeamId);
+        if (obj.teamId.toString() !== defaultTeamId) {
           // 删除 tm
           await TeamMember.findByIdAndDelete(obj._id);
           // 删除 rp
@@ -309,6 +310,18 @@ export const useUserRoute = (app) => {
             permission: ReadPermissionVal,
           });
         }
+      }
+
+      // 已经在此团队
+      var tmb = await TeamMember.findOne({
+        userId: _id,
+        teamId: defaultTeamId,
+      });
+      if (tmb) {
+        // 更新成默认
+        await TeamMember.findByIdAndUpdate(tmb._id, {
+          defaultTeam: true,
+        });
       } else {
         // 插入新默认团队
         defaultTeam = await TeamMember.create({

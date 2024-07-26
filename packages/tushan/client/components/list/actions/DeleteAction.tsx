@@ -28,10 +28,10 @@ export const ListDeleteAction: React.FC<{
           Message.info({
             content: t('tushan.list.deleteSuccess'),
           });
-        } catch (err) {
+        } catch (err:any) {
           console.error(err);
           Message.error({
-            content: t('tushan.common.operateFailed'),
+            content: err?.message ?? t('tushan.common.operateFailed'),
           });
         }
       }}

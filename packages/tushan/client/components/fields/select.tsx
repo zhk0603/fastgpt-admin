@@ -11,6 +11,8 @@ export interface SelectFieldOptionItem {
 
   label?: string;
 
+  disabled?: boolean;
+
   /**
    * Use in detail mode
    */
@@ -64,7 +66,7 @@ export const SelectFieldEdit: FieldEditComponent<
       onChange={(val) => props.onChange(val)}
     >
       {items.map((item) => (
-        <Select.Option key={item.value} value={item.value}>
+        <Select.Option key={item.value} value={item.value} disabled={item?.disabled ?? false}>
           {item.label ?? item.value}
         </Select.Option>
       ))}
