@@ -29,6 +29,19 @@ export const userFields = [
       rules: [{ required: true }],
     },
   }),
+  createTextField("tmbName", {
+    label: "昵称",
+    list: {
+      hidden: true
+    },
+    create: {
+      hidden: false,
+      disabled: false,
+    },
+    edit: {
+      hidden: true
+    },
+  }),
   // createNumberField('balance', { label: '余额（元）', list: { sort: true } }),
   createTextField("createTime", {
     label: "创建时间",

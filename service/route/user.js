@@ -147,6 +147,7 @@ export const useUserRoute = (app) => {
         timezone,
         promotionRate,
         defaultTeamId,
+        tmbName,
       } = req.body;
 
       // 创建用户
@@ -170,7 +171,7 @@ export const useUserRoute = (app) => {
         newTeamMember = await TeamMember.create({
           teamId: defaultTeam._id,
           userId: newUser._id,
-          name: "Member",
+          name: tmbName ?? username ?? "Member",
           role: "visitor",
           status: "active",
           defaultTeam: true,
